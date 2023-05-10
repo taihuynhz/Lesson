@@ -5,15 +5,15 @@ using static UnityEngine.GraphicsBuffer;
 
 public class FollowPlayer : MonoBehaviour
 {
-    [SerializeField] protected Transform player;
-    [SerializeField] protected Vector3 cameraDistance;
+    protected Transform player;
+    protected Vector3 cameraDistance;
 
     private void Reset()
     {
         this.GetPlayer();
     }
 
-    protected void Start()
+    private void Start()
     {
         this.GetPlayer();
         this.GetDistance();
@@ -21,12 +21,12 @@ public class FollowPlayer : MonoBehaviour
 
     protected void LateUpdate()
     {
-        Following();
+        this.Following();
     }
 
     protected virtual void Following()
     {
-        transform.position = player.transform.position - player.transform.forward * -cameraDistance.z;
+        transform.position = player.transform.position + player.transform.forward * cameraDistance.z;
         transform.LookAt(player.transform.position);
         transform.position = new Vector3(transform.position.x, transform.position.y + cameraDistance.y, transform.position.z);
     }
