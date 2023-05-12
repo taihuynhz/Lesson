@@ -72,7 +72,6 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarAutoMode()
     {
-        this.CarManualMode();
         transform.position = Vector3.MoveTowards(transform.position, checkpointsPos[currentPoint], Time.deltaTime * speed);
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, checkpointsPos[currentPoint] - transform.position, Time.deltaTime * autoRotateSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
