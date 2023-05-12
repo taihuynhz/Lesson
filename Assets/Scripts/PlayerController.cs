@@ -72,17 +72,7 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarManualMode()
     {
-        this.CarMovement();
-        this.CarRotate();
-    }
-
-    protected virtual void CarMovement()
-    {
         transform.Translate(InputManager.Instance.Vertical * Vector3.forward * Time.deltaTime * speed);
-    }
-
-    protected virtual void CarRotate()
-    {
         transform.Rotate(InputManager.Instance.Horizontal * Vector3.up * Time.deltaTime * rotateSpeed);
     }
 
