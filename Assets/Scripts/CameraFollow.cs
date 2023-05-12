@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
-public class FollowPlayer : MonoBehaviour
+public class CameraFollow: MonoBehaviour
 {
-    protected Transform player;
+    [SerializeField] protected Transform target;
     protected Vector3 cameraDistance;
 
     private void Reset()
@@ -13,7 +13,7 @@ public class FollowPlayer : MonoBehaviour
         this.GetPlayer();
     }
 
-    private void Start()
+    private void Awake()
     {
         this.GetPlayer();
         this.GetDistance();
@@ -26,18 +26,18 @@ public class FollowPlayer : MonoBehaviour
 
     protected virtual void Following()
     {
-        transform.position = player.transform.position + player.transform.forward * cameraDistance.z;
-        transform.LookAt(player.transform.position);
+        transform.position = target.transform.position + target.transform.forward * cameraDistance.z;
+        transform.LookAt(target.transform.position);
         transform.position = new Vector3(transform.position.x, transform.position.y + cameraDistance.y, transform.position.z);
     }
 
     protected virtual void GetPlayer()
     {
-        player = GameObject.Find("Player").transform;
+        target = GameObject.Find("Player").transform;
     }
 
     protected virtual void GetDistance()
     {
-        cameraDistance = transform.position - player.transform.position;
+        cameraDistance = transform.position - target.transform.position;
     }
 }

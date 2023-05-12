@@ -13,6 +13,12 @@ public class InputManager : MonoBehaviour
     protected float vertical ;
     public float Vertical => vertical;
 
+    protected bool auto;
+    public bool Auto => auto;
+
+    protected bool manual;
+    public bool Manual => manual;
+
     private void Awake()
     {
         if (InputManager.instance != null) return;
@@ -23,6 +29,8 @@ public class InputManager : MonoBehaviour
     {
         this.GetHorizontal();
         this.GetVertical();
+        this.GetCarAutoMode();
+        this.GetCarManualMode();
     }
 
     protected virtual void GetHorizontal()
@@ -33,5 +41,15 @@ public class InputManager : MonoBehaviour
     protected virtual void GetVertical()
     {
         this.vertical = Input.GetAxis("Vertical");
+    }
+
+    protected virtual void GetCarAutoMode()
+    {
+        this.auto = Input.GetKey(KeyCode.Alpha1);
+    }
+
+    protected virtual void GetCarManualMode()
+    {
+        this.manual = Input.GetKey(KeyCode.Alpha2);
     }
 }
