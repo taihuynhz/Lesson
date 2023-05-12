@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController: MonoBehaviour
 {   
     protected enum DriveMode { Manual, Automatic }
-    DriveMode mode = DriveMode.Manual;
+    protected DriveMode mode = DriveMode.Manual;
 
     [Header("===== Drive Mode =====")]
     [SerializeField] protected bool onAutomatic;
@@ -47,14 +47,8 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarMode()
     {
-        if (InputManager.Instance.Auto)
-        {
-            mode = DriveMode.Automatic;
-        }
-        else if (InputManager.Instance.Manual)
-        {
-            mode = DriveMode.Manual;
-        }
+        if (InputManager.Instance.Auto) mode = DriveMode.Automatic;
+        else if (InputManager.Instance.Manual) mode = DriveMode.Manual;
 
         if (mode == DriveMode.Automatic)
         {
@@ -78,6 +72,7 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarAutoMode()
     {
+        this.CarManualMode();
         transform.position = Vector3.MoveTowards(transform.position, checkpointsPos[currentPoint], Time.deltaTime * speed);
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, checkpointsPos[currentPoint] - transform.position, Time.deltaTime * autoRotateSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
