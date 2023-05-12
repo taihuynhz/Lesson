@@ -78,13 +78,12 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarAutoMode()
     {
-        if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistance) currentPoint++;
-        if (currentPoint == checkpoints.Count) currentPoint = 0;
-
         transform.position = Vector3.MoveTowards(transform.position, checkpointsPos[currentPoint], Time.deltaTime * speed);
-
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, checkpointsPos[currentPoint] - transform.position, Time.deltaTime * autoRotateSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
+
+        if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistance) currentPoint++;
+        if (currentPoint == checkpoints.Count) currentPoint = 0;
     }
 
     protected virtual void LoadCheckpoints()

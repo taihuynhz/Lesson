@@ -19607,7 +19607,6 @@ GameObject:
   - component: {fileID: 1172277961909716154}
   - component: {fileID: 1172277961909716153}
   - component: {fileID: 1172277961909716155}
-  - component: {fileID: 1172277961909716156}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -19663,39 +19662,6 @@ Rigidbody:
   m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &1172277961909716155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1172277961909716149}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 800fc86ad0dbcd54986c6238246ac1b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  onAutomatic: 0
-  onManual: 0
-  speed: 15
-  rotateSpeed: 50
-  autoRotateSpeed: 2.5
-  currentPoint: 0
-  minDistance: 0.1
-  checkpoints:
-  - {fileID: 964345215}
-  - {fileID: 862661803}
-  - {fileID: 1776728814}
-  - {fileID: 855719774}
-  - {fileID: 1606071334}
-  - {fileID: 1240626360}
-  checkpointsPos:
-  - {x: 0, y: 0.36752, z: 72}
-  - {x: -72, y: 0.36752, z: 72}
-  - {x: -72, y: 0.36752, z: 204}
-  - {x: 60, y: 0.36752, z: 204}
-  - {x: 60, y: 0.36752, z: -48}
-  - {x: 0, y: 0.36752, z: -48}
---- !u!114 &1172277961909716156
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
