@@ -23,7 +23,6 @@ public class PlayerController: MonoBehaviour
     [SerializeField] protected float minDistance = 0.1f;
     [SerializeField] protected List<Transform> checkpoints;
     [SerializeField] protected List<Vector3> checkpointsPos;
-    protected bool isDead;
 
     protected void Reset()
     {
