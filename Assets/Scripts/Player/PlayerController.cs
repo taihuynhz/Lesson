@@ -26,12 +26,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] protected List<Transform> checkpoints;
     [SerializeField] protected List<Vector3> checkpointsPos;
 
-    [Serializable] protected struct Wheel { public UnityEngine.WheelCollider wheelCollider; public Axel axel; }
+    [Serializable] protected struct Wheel 
+    { 
+        public UnityEngine.WheelCollider wheelCollider;
+        public Axel axel; 
+    }
     protected enum Axel { Front, Rear }
     protected enum DriveMode { Manual, Automatic }
-    protected DriveMode mode = DriveMode.Manual;
-
     protected new Rigidbody rigidbody;
+    protected DriveMode mode = DriveMode.Manual;
 
     protected void Reset()
     {
@@ -111,13 +114,13 @@ public class PlayerController : MonoBehaviour
 
     protected virtual void CarManualMode()
     {
-        // Move
+        // Forward/backward movement
         foreach (var wheel in wheels)
         {
             wheel.wheelCollider.motorTorque = InputManager.Instance.Vertical * 600 * maxAcceleration * Time.deltaTime;
         }
 
-        // Steer
+        // Apply sterring
         foreach (var wheel in wheels)
         {
             if (wheel.axel == Axel.Front)
@@ -127,7 +130,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Brake
+        // Apply braking
         if (InputManager.Instance.Brake || InputManager.Instance.Vertical == 0)
         {
             foreach (var wheel in wheels)
