@@ -28,7 +28,7 @@ public class PlayerModel : MonoBehaviour
     {
         if (this.models.Count > 0) return;
 
-        foreach (Transform model in transform.Find("ModelsHolder"))
+        foreach (Transform model in transform.Find("Models"))
         {
             this.models.Add(model);
         }

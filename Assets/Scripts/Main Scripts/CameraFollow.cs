@@ -33,7 +33,7 @@ public class CameraFollow: MonoBehaviour
 
     protected virtual void GetPlayer()
     {
-        target = GameObject.Find("Player").transform;
+        target = GameObject.Find("=== Player ===").transform;
     }
 
     protected virtual void GetDistance()

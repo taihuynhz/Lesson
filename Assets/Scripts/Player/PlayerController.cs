@@ -1,22 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerController: MonoBehaviour
-{   
-    protected enum DriveMode { Manual, Automatic }
-    protected DriveMode mode = DriveMode.Manual;
-
+public class PlayerController : MonoBehaviour
+{
     [Header("===== Drive Mode =====")]
     [SerializeField] protected bool onAutomatic;
     [SerializeField] protected bool onManual;
 
-    [Header("===== Car Speed =====")]
-    [SerializeField] protected float speed = 15f;
-    [SerializeField] protected float rotateSpeed = 50f;
+    [Header("===== Car =====")]
+    [SerializeField] protected float maxAcceleration = 30.0f;
+    [SerializeField] protected float brakeAcceleration = 50.0f;
+    [SerializeField] protected float turnSensitivity = 1.0f;
+    [SerializeField] protected float maxSteerAngle = 30.0f;
+    [SerializeField] protected float autoSpeed = 15f;
     [SerializeField] protected float autoRotateSpeed = 2.5f;
+    [SerializeField] protected List<Wheel> wheels;
 
     [Header("===== Checkpoints =====")]
     [SerializeField] protected int currentPoint = 0;
@@ -24,15 +26,29 @@ public class PlayerController: MonoBehaviour
     [SerializeField] protected List<Transform> checkpoints;
     [SerializeField] protected List<Vector3> checkpointsPos;
 
+    [Serializable] protected struct Wheel { public UnityEngine.WheelCollider wheelCollider; public Axel axel; }
+    protected enum Axel { Front, Rear }
+    protected enum DriveMode { Manual, Automatic }
+    protected DriveMode mode = DriveMode.Manual;
+
+    protected new Rigidbody rigidbody;
+
     protected void Reset()
     {
         this.ResetValue();
+        this.LoadComponents();
         this.LoadCheckpoints();
     }
 
     protected void Awake()
     {
+        this.LoadComponents();
         this.LoadCheckpoints();
+    }
+
+    private void Start()
+    {
+        this.rigidbody.centerOfMass = Vector3.zero;
     }
 
     protected void FixedUpdate()
@@ -42,9 +58,36 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void ResetValue()
     {
-        this.speed = 15f;
-        this.rotateSpeed = 50f;
+        this.maxAcceleration = 30.0f;
+        this.brakeAcceleration = 50.0f;
+        this.turnSensitivity = 1.0f;
+        this.maxSteerAngle = 30.0f;
+        this.autoSpeed = 15f;
         this.autoRotateSpeed = 2.5f;
+    }
+
+    protected virtual void LoadComponents()
+    {
+        this.LoadRigidbody();
+    }
+
+    protected virtual void LoadRigidbody()
+    {
+        if (this.rigidbody != null) return;
+        this.rigidbody = GetComponent<Rigidbody>();
+        this.rigidbody.mass = 500f;
+        this.rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+    }
+
+    protected virtual void LoadCheckpoints()
+    {
+        if (this.checkpoints.Count > 0) return;
+
+        foreach (Transform checkpoint in transform.Find("Checkpoints"))
+        {
+            this.checkpoints.Add(checkpoint);
+            this.checkpointsPos.Add(checkpoint.position);
+        }
     }
 
     protected virtual void CarMode()
@@ -68,28 +111,46 @@ public class PlayerController: MonoBehaviour
 
     protected virtual void CarManualMode()
     {
-        transform.Translate(InputManager.Instance.Vertical * Vector3.forward * Time.deltaTime * speed);
-        transform.Rotate(InputManager.Instance.Horizontal * Vector3.up * Time.deltaTime * rotateSpeed);
+        // Move
+        foreach (var wheel in wheels)
+        {
+            wheel.wheelCollider.motorTorque = InputManager.Instance.Vertical * 600 * maxAcceleration * Time.deltaTime;
+        }
+
+        // Steer
+        foreach (var wheel in wheels)
+        {
+            if (wheel.axel == Axel.Front)
+            {
+                var _steerAngle = InputManager.Instance.Horizontal * turnSensitivity * maxSteerAngle;
+                wheel.wheelCollider.steerAngle = Mathf.Lerp(wheel.wheelCollider.steerAngle, _steerAngle, 0.6f);
+            }
+        }
+
+        // Brake
+        if (InputManager.Instance.Brake || InputManager.Instance.Vertical == 0)
+        {
+            foreach (var wheel in wheels)
+            {
+                wheel.wheelCollider.brakeTorque = 300 * brakeAcceleration * Time.deltaTime;
+            }
+        }
+        else
+        {
+            foreach (var wheel in wheels)
+            {
+                wheel.wheelCollider.brakeTorque = 0;
+            }
+        }
     }
 
     protected virtual void CarAutoMode()
     {
-        transform.position = Vector3.MoveTowards(transform.position, checkpointsPos[currentPoint], Time.deltaTime * speed);
+        transform.position = Vector3.MoveTowards(transform.position, checkpointsPos[currentPoint], Time.deltaTime * autoSpeed);
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, checkpointsPos[currentPoint] - transform.position, Time.deltaTime * autoRotateSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
 
         if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistance) currentPoint++;
         if (currentPoint == checkpoints.Count) currentPoint = 0;
-    }
-
-    protected virtual void LoadCheckpoints()
-    {
-        if (this.checkpoints.Count > 0) return;
-
-        foreach (Transform checkpoint in transform.Find("Checkpoints"))
-        {
-            this.checkpoints.Add(checkpoint);
-            this.checkpointsPos.Add(checkpoint.position);
-        }
     }
 }
