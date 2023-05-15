@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -34,7 +33,6 @@ public class PlayerController : MonoBehaviour
     protected enum Axel { Front, Rear }
     protected enum DriveMode { Manual, Automatic }
     protected new Rigidbody rigidbody;
-    protected DriveMode mode = DriveMode.Manual;
 
     protected void Reset()
     {
