@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : MyMonoBehaviour
 {
     [Header("===== Drive Mode =====")]
     [SerializeField] protected bool onAutomatic;
@@ -20,35 +20,42 @@ public class PlayerController : MonoBehaviour
     [SerializeField] protected List<Wheel> wheels;
 
     [Header("===== Checkpoints =====")]
+    [SerializeField] protected int laps = -1;
     [SerializeField] protected int currentPoint = 0;
     [SerializeField] protected float minDistance = 0.1f;
     [SerializeField] protected List<Transform> checkpoints;
     [SerializeField] protected List<Vector3> checkpointsPos;
 
-    [Serializable] protected struct Wheel 
-    { 
-        public UnityEngine.WheelCollider wheelCollider;
-        public Axel axel; 
-    }
     protected enum Axel { Front, Rear }
+    [Serializable] protected struct Wheel
+    {
+        public WheelCollider wheelCollider;
+        public Axel axel;
+    }
+
     protected enum DriveMode { Manual, Automatic }
+    protected DriveMode mode = DriveMode.Manual;
+ 
     protected new Rigidbody rigidbody;
 
-    protected void Reset()
+    protected override void Reset()
     {
+        base.Reset();   
         this.ResetValue();
         this.LoadComponents();
         this.LoadCheckpoints();
     }
 
-    protected void Awake()
-    {
+    protected override void Awake()
+    {   
+        base.Awake();
         this.LoadComponents();
         this.LoadCheckpoints();
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         this.rigidbody.centerOfMass = Vector3.zero;
     }
 
@@ -57,8 +64,9 @@ public class PlayerController : MonoBehaviour
         this.CarMode();
     }
 
-    protected virtual void ResetValue()
+    protected override void ResetValue()
     {
+        base.ResetValue();
         this.maxAcceleration = 30.0f;
         this.brakeAcceleration = 50.0f;
         this.turnSensitivity = 1.0f;
@@ -67,8 +75,9 @@ public class PlayerController : MonoBehaviour
         this.autoRotateSpeed = 2.5f;
     }
 
-    protected virtual void LoadComponents()
+    protected override void LoadComponents()
     {
+        base.LoadComponents();
         this.LoadRigidbody();
     }
 
@@ -153,5 +162,13 @@ public class PlayerController : MonoBehaviour
 
         if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistance) currentPoint++;
         if (currentPoint == checkpoints.Count) currentPoint = 0;
+    }
+
+    protected virtual void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("StartGate"))
+        {
+            laps++;
+        }
     }
 }
