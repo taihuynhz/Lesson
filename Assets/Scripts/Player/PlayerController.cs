@@ -2,16 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MyMonoBehaviour
 {
+    private static PlayerController instance;
+    public static PlayerController Instance => instance;
+
     [Header("===== Drive Mode =====")]
     [SerializeField] protected bool onAutomatic;
     [SerializeField] protected bool onManual;
 
     [Header("===== Car =====")]
     [SerializeField] protected float maxAcceleration = 30.0f;
+    public float MaxAcceleration => maxAcceleration;
     [SerializeField] protected float brakeAcceleration = 50.0f;
     [SerializeField] protected float turnSensitivity = 1.0f;
     [SerializeField] protected float maxSteerAngle = 30.0f;
@@ -20,9 +25,13 @@ public class PlayerController : MyMonoBehaviour
     [SerializeField] protected List<Wheel> wheels;
 
     [Header("===== Checkpoints =====")]
-    [SerializeField] protected int laps = -1;
+    [SerializeField] protected int laps = 0;
+    public int Laps => laps;
+
     [SerializeField] protected int currentPoint = 0;
-    [SerializeField] protected float minDistance = 0.1f;
+    public int CurrentPoint => currentPoint;
+    [SerializeField] protected float minDistanceAuto = 0.1f;
+    [SerializeField] protected float minDistanceManual = 10f;
     [SerializeField] protected List<Transform> checkpoints;
     [SerializeField] protected List<Vector3> checkpointsPos;
 
@@ -37,6 +46,9 @@ public class PlayerController : MyMonoBehaviour
     protected DriveMode mode = DriveMode.Manual;
  
     protected new Rigidbody rigidbody;
+    protected Vector3 lastPosition;
+    protected float playerSpeed;
+    public float PlayerSpeed => playerSpeed;
 
     protected override void Reset()
     {
@@ -47,7 +59,10 @@ public class PlayerController : MyMonoBehaviour
     }
 
     protected override void Awake()
-    {   
+    {
+        if (PlayerController.instance != null) return;
+        PlayerController.instance = this;
+
         base.Awake();
         this.LoadComponents();
         this.LoadCheckpoints();
@@ -62,6 +77,7 @@ public class PlayerController : MyMonoBehaviour
     protected void FixedUpdate()
     {
         this.CarMode();
+        this.GetPlayerSpeed();
     }
 
     protected override void ResetValue()
@@ -121,12 +137,24 @@ public class PlayerController : MyMonoBehaviour
 
     protected virtual void CarManualMode()
     {
+        this.ApplyMotorTorque();
+        this.Steering();
+        this.Braking();
+
+        this.CheckPointsCounter();
+    }
+
+    public virtual void ApplyMotorTorque()
+    {
         // Forward/backward movement
         foreach (var wheel in wheels)
         {
             wheel.wheelCollider.motorTorque = InputManager.Instance.Vertical * 600 * maxAcceleration * Time.deltaTime;
         }
+    }
 
+    public virtual void Steering()
+    {
         // Apply sterring
         foreach (var wheel in wheels)
         {
@@ -136,7 +164,10 @@ public class PlayerController : MyMonoBehaviour
                 wheel.wheelCollider.steerAngle = Mathf.Lerp(wheel.wheelCollider.steerAngle, _steerAngle, 0.6f);
             }
         }
+    }
 
+    public virtual void Braking()
+    {
         // Apply braking
         if (InputManager.Instance.Brake || InputManager.Instance.Vertical == 0)
         {
@@ -160,15 +191,30 @@ public class PlayerController : MyMonoBehaviour
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, checkpointsPos[currentPoint] - transform.position, Time.deltaTime * autoRotateSpeed, 0.0f);
         transform.rotation = Quaternion.LookRotation(newDirection);
 
-        if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistance) currentPoint++;
-        if (currentPoint == checkpoints.Count) currentPoint = 0;
+        this.CheckPointsCounter();
     }
 
-    protected virtual void OnTriggerEnter(Collider other)
+    protected virtual void CheckPointsCounter()
     {
-        if (other.CompareTag("StartGate"))
+        if (mode == DriveMode.Automatic)
         {
+            if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistanceAuto) currentPoint++;
+        }
+        else if (mode == DriveMode.Manual)
+        {
+            if (Vector3.Distance(checkpointsPos[currentPoint], transform.position) < minDistanceManual) currentPoint++;
+        }
+
+        if (currentPoint == checkpoints.Count)
+        {
+            currentPoint = 0;
             laps++;
         }
+    }
+
+    protected virtual void GetPlayerSpeed()
+    {
+        this.playerSpeed = Vector3.Distance(lastPosition, transform.position) / Time.deltaTime;
+        lastPosition = transform.position;
     }
 }
